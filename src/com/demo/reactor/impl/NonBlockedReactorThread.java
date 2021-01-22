@@ -86,12 +86,12 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
 
     @Override
     public void onRead(ReactorChannel channel) {
-
+        threadExecutor.handle(channel::read);
     }
 
     @Override
     public void onWritten(ReactorChannel channel) {
-
+        threadExecutor.handle(channel::write);
     }
 
 

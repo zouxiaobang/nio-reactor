@@ -2,6 +2,8 @@ package com.demo.reactor;
 
 import com.demo.channel.ReactorChannel;
 
+import java.io.IOException;
+
 /**
  * @author zouxiaobang
  * @date 2021/1/22
@@ -13,9 +15,9 @@ public interface ReactorThread {
 
     void doStop();
 
-    void register();
+    void register(int port) throws IOException;
 
-    void dispatchByKey(ReactorChannel channel);
+    void dispatchEvent(ReactorChannel channel);
 
     void onAccepted(ReactorChannel channel);
 

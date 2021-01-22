@@ -10,6 +10,7 @@ import java.nio.channels.SelectableChannel;
  */
 public class NioReactorChannel implements ReactorChannel {
     private final SelectableChannel selectableChannel;
+    private EventType eventType;
 
     private NioReactorChannel(SelectableChannel selectableChannel) {
         this.selectableChannel = selectableChannel;
@@ -21,7 +22,11 @@ public class NioReactorChannel implements ReactorChannel {
 
     @Override
     public EventType getEventType() {
-        return null;
+        return eventType;
+    }
+
+    public void setEventType(EventType eventType) {
+        this.eventType = eventType;
     }
 
     @Override
@@ -33,4 +38,10 @@ public class NioReactorChannel implements ReactorChannel {
     public void write() {
 
     }
+
+    public SelectableChannel getSelectableChannel() {
+        return selectableChannel;
+    }
+
+
 }

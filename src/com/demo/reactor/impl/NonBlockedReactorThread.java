@@ -2,6 +2,8 @@ package com.demo.reactor.impl;
 
 import com.demo.channel.NioReactorChannel;
 import com.demo.channel.ReactorChannel;
+import com.demo.handler.thread.ThreadExecutor;
+import com.demo.handler.thread.ThreadExecutorFactory;
 import com.demo.reactor.EventTypeFactory;
 import com.demo.reactor.ReactorThread;
 
@@ -12,7 +14,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.util.*;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.*;
 
 /**
  * @author zouxiaobang
@@ -20,18 +22,24 @@ import java.util.concurrent.FutureTask;
  * 采用jdk的nio实现
  */
 public abstract class NonBlockedReactorThread extends Thread implements ReactorThread {
-    private final String threadName;
+    private static final int DEFAULT_THREAD_COUNT = 5;
+    private String threadName;
+    private final ThreadExecutor threadExecutor;
     private boolean isRunning;
     private final Selector selector;
     private final Queue<Runnable> registerTasks = new LinkedList<>();
 
     public NonBlockedReactorThread() throws IOException {
-        this(Thread.currentThread().getName());
+        this(DEFAULT_THREAD_COUNT);
     }
 
-    public NonBlockedReactorThread(String threadName) throws IOException {
-        this.threadName = threadName;
+    public NonBlockedReactorThread(int ioThreadCount) throws IOException {
+        threadExecutor = ThreadExecutorFactory.createThreadExecutor(ioThreadCount);
         selector = Selector.open();
+    }
+
+    public void setThreadName(String threadName) {
+        this.threadName = threadName;
     }
 
     @Override
@@ -69,7 +77,6 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
             runListenEvent();
         }
     }
-
 
     @Override
     public void onAccepted(ReactorChannel channel) {

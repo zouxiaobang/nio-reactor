@@ -7,4 +7,7 @@ import com.demo.reactor.AbsReactor;
  * @date 2021/1/22
  */
 public class WorkThreadsReactor extends AbsReactor {
+    public WorkThreadsReactor() {
+
+    }
 }

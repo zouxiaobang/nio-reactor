@@ -8,6 +8,14 @@ import java.nio.channels.SelectionKey;
  */
 public class EventTypeFactory {
     public static EventType getBy(SelectionKey selectionKey) {
-        return null;
+        if (selectionKey.isAcceptable()) {
+            return EventType.ACCEPT;
+        } else if (selectionKey.isReadable()) {
+            return EventType.READ;
+        } else if (selectionKey.isWritable()) {
+            return EventType.WRITE;
+        }
+
+        return EventType.DEFAULT;
     }
 }

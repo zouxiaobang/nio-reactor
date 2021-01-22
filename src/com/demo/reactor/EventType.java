@@ -10,5 +10,6 @@ public enum EventType {
      */
     ACCEPT,
     READ,
-    WRITE
+    WRITE,
+    DEFAULT
 }

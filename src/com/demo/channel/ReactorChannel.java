@@ -1,20 +1,16 @@
 package com.demo.channel;
 
-import java.nio.channels.SelectableChannel;
+import com.demo.reactor.EventType;
 
 /**
  * @author zouxiaobang
  * @date 2021/1/22
  */
-public class ReactorChannel {
-    private SelectableChannel channel;
+public interface ReactorChannel {
 
+    EventType getEventType();
 
-    public void read() {
+    void read();
 
-    }
-
-    public void write() {
-        // write to channel
-    }
+    void write();
 }

@@ -8,7 +8,7 @@ import com.demo.channel.ReactorChannel;
  */
 public abstract class AbsReactor implements Reactor {
     @Override
-    public void accept(ReactorThread reactorThread, ReactorChannel channel) {
+    public void accept(ReactorThread subReactorThread, ReactorChannel channel) {
 
     }
 

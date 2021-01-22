@@ -7,7 +7,7 @@ import com.demo.channel.ReactorChannel;
  * @date 2021/1/22
  */
 public interface Reactor {
-    void accept(ReactorThread reactorThread, ReactorChannel channel);
+    void accept(ReactorThread subReactorThread, ReactorChannel channel);
 
     void handleIo(ReactorThread reactorThread, ReactorChannel channel);
 }

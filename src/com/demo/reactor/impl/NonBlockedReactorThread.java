@@ -1,5 +1,6 @@
-package com.demo.channel;
+package com.demo.reactor.impl;
 
+import com.demo.channel.ReactorChannel;
 import com.demo.reactor.ReactorThread;
 
 /**
@@ -24,7 +25,22 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
     }
 
     @Override
-    public void register(ReactorChannel channel, int interestOperation) {
+    public void register() {
+
+    }
+
+    @Override
+    public void onAccepted(ReactorChannel channel) {
+
+    }
+
+    @Override
+    public void onRead(ReactorChannel channel) {
+
+    }
+
+    @Override
+    public void onWritten(ReactorChannel channel) {
 
     }
 

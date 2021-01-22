@@ -2,8 +2,6 @@ package com.demo.reactor;
 
 import com.demo.channel.ReactorChannel;
 
-import java.nio.channels.SelectionKey;
-
 /**
  * @author zouxiaobang
  * @date 2021/1/22
@@ -15,7 +13,13 @@ public interface ReactorThread {
 
     void doStop();
 
-    void register(ReactorChannel channel, int interestOperation);
+    void register();
 
-    void dispatchByKey(SelectionKey key, ReactorChannel channel);
+    void dispatchByKey(ReactorChannel channel);
+
+    void onAccepted(ReactorChannel channel);
+
+    void onRead(ReactorChannel channel);
+
+    void onWritten(ReactorChannel channel);
 }

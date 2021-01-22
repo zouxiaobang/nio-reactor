@@ -2,6 +2,8 @@ package com.demo.reactor;
 
 import com.demo.channel.ReactorChannel;
 
+import java.io.IOException;
+
 /**
  * @author zouxiaobang
  * @date 2021/1/22
@@ -9,7 +11,7 @@ import com.demo.channel.ReactorChannel;
 public abstract class AbsReactor implements Reactor {
 
     @Override
-    public void accept(ReactorThread subReactorThread, ReactorChannel channel) {
+    public void accept(ReactorThread subReactorThread, ReactorChannel channel) throws IOException {
         subReactorThread.onAccepted(channel);
     }
 

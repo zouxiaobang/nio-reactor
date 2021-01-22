@@ -17,9 +17,9 @@ public interface ReactorThread {
 
     void register(int port) throws IOException;
 
-    void dispatchEvent(ReactorChannel channel);
+    void dispatchEvent(ReactorChannel channel) throws IOException;
 
-    void onAccepted(ReactorChannel channel);
+    void onAccepted(ReactorChannel channel) throws IOException;
 
     void onRead(ReactorChannel channel);
 

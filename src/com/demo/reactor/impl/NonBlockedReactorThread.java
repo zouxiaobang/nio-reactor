@@ -9,10 +9,7 @@ import com.demo.reactor.ReactorThread;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.SelectableChannel;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.*;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -67,7 +64,7 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
         ServerSocketChannel selectableChannel = ServerSocketChannel.open();
         selectableChannel.configureBlocking(false);
         selectableChannel.bind(new InetSocketAddress(port));
-        buildRegisterTask(selectableChannel);
+        buildRegisterTask(selectableChannel, SelectionKey.OP_ACCEPT);
     }
 
     @Override
@@ -79,8 +76,12 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
     }
 
     @Override
-    public void onAccepted(ReactorChannel channel) {
-
+    public void onAccepted(ReactorChannel channel) throws IOException {
+        NioReactorChannel nioReactorChannel = toNioChannel(channel);
+        SelectableChannel selectableChannel = nioReactorChannel.getSelectableChannel();
+        if (selectableChannel != null) {
+            accepted(selectableChannel);
+        }
     }
 
     @Override
@@ -118,10 +119,10 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
         throw new IllegalArgumentException("NonBlockedReactorThread实现只能采用NioReactorChannel");
     }
 
-    private void buildRegisterTask(SelectableChannel selectableChannel) {
+    private void buildRegisterTask(SelectableChannel selectableChannel, int interestOps) {
         FutureTask<SelectionKey> registerTask = new FutureTask<>(() -> {
             SelectionKey selectionKey = selectableChannel.register(selector, SelectionKey.OP_ACCEPT);
-            selectionKey.interestOps(SelectionKey.OP_ACCEPT);
+            selectionKey.interestOps(interestOps);
             return selectionKey;
         });
         registerTasks.add(registerTask);
@@ -156,5 +157,12 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
         if (!selectableChannel.isOpen()) {
             selectionKey.cancel();
         }
+    }
+
+    private void accepted(SelectableChannel selectableChannel) throws IOException {
+        ServerSocketChannel serverSocketChannel = (ServerSocketChannel) selectableChannel;
+        SocketChannel socketChannel = serverSocketChannel.accept();
+        socketChannel.configureBlocking(false);
+        buildRegisterTask(socketChannel, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
     }
 }

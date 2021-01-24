@@ -1,5 +1,7 @@
 package com.demo.channel;
 
+import com.demo.handler.chain.FilterChain;
+import com.demo.handler.chain.FilterContext;
 import com.demo.reactor.EventType;
 
 import java.io.IOException;
@@ -14,6 +16,7 @@ import java.nio.channels.SocketChannel;
 public class NioReactorChannel implements ReactorChannel {
     private final SelectableChannel selectableChannel;
     private EventType eventType;
+    private FilterChain filterChain;
 
     private NioReactorChannel(SelectableChannel selectableChannel) {
         this.selectableChannel = selectableChannel;
@@ -21,6 +24,16 @@ public class NioReactorChannel implements ReactorChannel {
 
     public static NioReactorChannel ofChannel(SelectableChannel selectableChannel) {
         return new NioReactorChannel(selectableChannel);
+    }
+
+    public NioReactorChannel filterChain(FilterChain filterChain) {
+        this.filterChain = filterChain;
+        return this;
+    }
+
+    @Override
+    public FilterChain getFilterChain() {
+        return filterChain;
     }
 
     @Override
@@ -35,10 +48,16 @@ public class NioReactorChannel implements ReactorChannel {
     @Override
     public void read() throws IOException {
         ByteBuffer byteBuffer = getByteBufferFromChannel();
-        // TODO chain handle()
-        if (byteBuffer != null) {
-
+        if (byteBuffer != null && filterChain != null) {
+            FilterContext filterContext = buildFilterContext(byteBuffer);
+            filterChain.filter(filterContext);
         }
+    }
+
+    private FilterContext buildFilterContext(ByteBuffer byteBuffer) {
+        FilterContext filterContext = new FilterContext();
+        filterContext.setOriginalData(byteBuffer);
+        return filterContext;
     }
 
     @Override

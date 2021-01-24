@@ -2,6 +2,7 @@ package com.demo.reactor.impl;
 
 import com.demo.channel.NioReactorChannel;
 import com.demo.channel.ReactorChannel;
+import com.demo.handler.Handler;
 import com.demo.handler.chain.FilterChain;
 import com.demo.handler.thread.ThreadExecutor;
 import com.demo.handler.thread.ThreadExecutorFactory;
@@ -26,6 +27,7 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
     private boolean isRunning;
     private final Selector selector;
     private FilterChain filterChain;
+    private Handler<?> handler;
     private final Queue<Runnable> registerTasks = new LinkedList<>();
 
     public NonBlockedReactorThread() throws IOException {
@@ -106,6 +108,10 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
         this.filterChain = filterChain;
     }
 
+    public void setHandler(Handler<?> handler) {
+        this.handler = handler;
+    }
+
     private void runRegisterTask() {
         Runnable registerTask;
         while ((registerTask = registerTasks.poll()) != null) {
@@ -154,7 +160,9 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
             try {
                 SelectableChannel selectableChannel = selectionKey.channel();
                 selectableChannel.configureBlocking(false);
-                NioReactorChannel nioReactorChannel = NioReactorChannel.ofChannel(selectableChannel).filterChain(filterChain);
+                NioReactorChannel nioReactorChannel = NioReactorChannel.ofChannel(selectableChannel)
+                        .filterChain(filterChain)
+                        .handler(handler);
                 nioReactorChannel.setEventType(EventTypeFactory.getBy(selectionKey));
                 dispatchEvent(nioReactorChannel);
                 cancelListening(selectionKey, selectableChannel);

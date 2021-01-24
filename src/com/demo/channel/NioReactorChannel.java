@@ -1,5 +1,7 @@
 package com.demo.channel;
 
+import com.demo.handler.ByteBufferHandler;
+import com.demo.handler.Handler;
 import com.demo.handler.chain.FilterChain;
 import com.demo.handler.chain.FilterContext;
 import com.demo.reactor.EventType;
@@ -17,6 +19,7 @@ public class NioReactorChannel implements ReactorChannel {
     private final SelectableChannel selectableChannel;
     private EventType eventType;
     private FilterChain filterChain;
+    private Handler<?> handler;
 
     private NioReactorChannel(SelectableChannel selectableChannel) {
         this.selectableChannel = selectableChannel;
@@ -28,6 +31,11 @@ public class NioReactorChannel implements ReactorChannel {
 
     public NioReactorChannel filterChain(FilterChain filterChain) {
         this.filterChain = filterChain;
+        return this;
+    }
+
+    public NioReactorChannel handler(Handler<?> handler) {
+        this.handler = handler;
         return this;
     }
 
@@ -48,9 +56,28 @@ public class NioReactorChannel implements ReactorChannel {
     @Override
     public void read() throws IOException {
         ByteBuffer byteBuffer = getByteBufferFromChannel();
-        if (byteBuffer != null && filterChain != null) {
+        if (byteBuffer != null) {
+            doRead(byteBuffer);
+        }
+    }
+
+    private void doRead(ByteBuffer byteBuffer) {
+        if (filterChain != null) {
             FilterContext filterContext = buildFilterContext(byteBuffer);
             filterChain.filter(filterContext);
+        } else {
+            // 没有filter链，直接使用ByteBufferHandler
+            doHandle(byteBuffer);
+        }
+    }
+
+    private void doHandle(ByteBuffer byteBuffer) {
+        if (handler != null && handler.getEntityClass() == ByteBuffer.class) {
+            Handler<ByteBuffer> byteBufferHandler = (Handler<ByteBuffer>) handler;
+            byteBufferHandler.handle(this, byteBuffer);
+        } else {
+            ByteBufferHandler byteBufferHandler = new ByteBufferHandler();
+            byteBufferHandler.handle(this, byteBuffer);
         }
     }
 

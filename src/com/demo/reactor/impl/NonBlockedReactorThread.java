@@ -92,7 +92,7 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
     public void onRead(ReactorChannel channel) {
         threadExecutor.handle(() -> {
             try {
-                channel.read();
+                channel.getIoer().read();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -101,7 +101,13 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
 
     @Override
     public void onWritten(ReactorChannel channel) {
-        threadExecutor.handle(channel::write);
+        threadExecutor.handle(() -> {
+            try {
+                channel.getIoer().write();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void setFilterChain(FilterChain filterChain) {

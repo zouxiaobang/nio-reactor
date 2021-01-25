@@ -15,7 +15,5 @@ public interface ReactorChannel {
 
     EventType getEventType();
 
-    void read() throws IOException;
-
-    void write();
+    Ioer getIoer();
 }

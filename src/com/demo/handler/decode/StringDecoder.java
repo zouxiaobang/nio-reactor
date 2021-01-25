@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
  */
 public class StringDecoder extends AbsDecoder<String> {
     @Override
-    public String decode(Translator<String, ByteBuffer> translator, ByteBuffer data) {
+    public String decode(Translator<ByteBuffer, String> translator, ByteBuffer data) {
         return null;
     }
 

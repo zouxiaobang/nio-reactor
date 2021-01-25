@@ -2,7 +2,6 @@ package com.demo.reactor.impl;
 
 import com.demo.channel.NioReactorChannel;
 import com.demo.channel.ReactorChannel;
-import com.demo.handler.Handler;
 import com.demo.handler.chain.FilterChain;
 import com.demo.handler.thread.ThreadExecutor;
 import com.demo.handler.thread.ThreadExecutorFactory;
@@ -12,8 +11,11 @@ import com.demo.reactor.ReactorThread;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.*;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.FutureTask;
 
 /**
  * @author zouxiaobang
@@ -27,7 +29,6 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
     private boolean isRunning;
     private final Selector selector;
     private FilterChain filterChain;
-    private Handler<?> handler;
     private final Queue<Runnable> registerTasks = new LinkedList<>();
 
     public NonBlockedReactorThread() throws IOException {
@@ -114,10 +115,6 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
         this.filterChain = filterChain;
     }
 
-    public void setHandler(Handler<?> handler) {
-        this.handler = handler;
-    }
-
     private void runRegisterTask() {
         Runnable registerTask;
         while ((registerTask = registerTasks.poll()) != null) {
@@ -167,8 +164,7 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
                 SelectableChannel selectableChannel = selectionKey.channel();
                 selectableChannel.configureBlocking(false);
                 NioReactorChannel nioReactorChannel = NioReactorChannel.ofChannel(selectableChannel)
-                        .filterChain(filterChain)
-                        .handler(handler);
+                        .filterChain(filterChain);
                 nioReactorChannel.setEventType(EventTypeFactory.getBy(selectionKey));
                 dispatchEvent(nioReactorChannel);
                 cancelListening(selectionKey, selectableChannel);

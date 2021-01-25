@@ -1,7 +1,5 @@
 package com.demo.channel;
 
-import com.demo.handler.ByteBufferHandler;
-import com.demo.handler.Handler;
 import com.demo.handler.chain.FilterChain;
 import com.demo.handler.chain.FilterContext;
 import com.demo.reactor.EventType;
@@ -19,7 +17,6 @@ public class NioReactorChannel implements ReactorChannel {
     private final SelectableChannel selectableChannel;
     private EventType eventType;
     private FilterChain filterChain;
-    private Handler<?> handler;
     private Ioer ioer;
 
     private NioReactorChannel(SelectableChannel selectableChannel) {
@@ -32,11 +29,6 @@ public class NioReactorChannel implements ReactorChannel {
 
     public NioReactorChannel filterChain(FilterChain filterChain) {
         this.filterChain = filterChain;
-        return this;
-    }
-
-    public NioReactorChannel handler(Handler<?> handler) {
-        this.handler = handler;
         return this;
     }
 
@@ -82,27 +74,20 @@ public class NioReactorChannel implements ReactorChannel {
 
         private void doRead(ByteBuffer byteBuffer) {
             if (filterChain != null) {
-                FilterContext filterContext = buildFilterContext(byteBuffer);
-                filterChain.filter(filterContext);
-            } else {
-                // 没有filter链，直接使用ByteBufferHandler
-                doHandle(byteBuffer);
+                try {
+                    FilterContext filterContext = buildFilterContext(byteBuffer, FilterContext.IN_BOUND);
+                    filterChain.filter(filterContext);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
-        private void doHandle(ByteBuffer byteBuffer) {
-            if (handler != null && handler.getEntityClass() == ByteBuffer.class) {
-                Handler<ByteBuffer> byteBufferHandler = (Handler<ByteBuffer>) handler;
-                byteBufferHandler.handle(NioReactorChannel.this, byteBuffer);
-            } else {
-                ByteBufferHandler byteBufferHandler = new ByteBufferHandler();
-                byteBufferHandler.handle(NioReactorChannel.this, byteBuffer);
-            }
-        }
-
-        private FilterContext buildFilterContext(ByteBuffer byteBuffer) {
+        private FilterContext buildFilterContext(ByteBuffer byteBuffer, int bound) {
             FilterContext filterContext = new FilterContext();
-            filterContext.setOriginalData(byteBuffer);
+            filterContext.setData(byteBuffer);
+            filterContext.setBound(bound);
+            filterContext.setReactorChannel(NioReactorChannel.this);
             return filterContext;
         }
 

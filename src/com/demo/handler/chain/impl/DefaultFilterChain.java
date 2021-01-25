@@ -22,13 +22,18 @@ public class DefaultFilterChain implements FilterChain {
     }
 
     @Override
-    public void filter(FilterContext context) {
+    public void filter(FilterContext context) throws Exception {
         if (currentPosition == processors.size()) {
             return;
         }
         ++ currentPosition;
         FilterProcessor processor = processors.get(currentPosition - 1);
         processor.filter(context, this);
+    }
+
+    @Override
+    public List<FilterProcessor> getFilterProcessors() {
+        return processors;
     }
 
 

@@ -5,5 +5,5 @@ package com.demo.handler.chain;
  * @date 2021/1/22
  */
 public interface FilterProcessor {
-    void filter(FilterContext context, FilterChain chain);
+    void filter(FilterContext context, FilterChain chain) throws Exception;
 }

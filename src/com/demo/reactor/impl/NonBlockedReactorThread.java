@@ -23,7 +23,7 @@ import java.util.concurrent.FutureTask;
  * 采用jdk的nio实现
  */
 public abstract class NonBlockedReactorThread extends Thread implements ReactorThread {
-    private static final int DEFAULT_THREAD_COUNT = 5;
+    private static final int DEFAULT_THREAD_COUNT = 1;
     private String threadName;
     private final ThreadExecutor threadExecutor;
     private boolean isRunning;
@@ -36,6 +36,9 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
     }
 
     public NonBlockedReactorThread(int ioThreadCount) throws IOException {
+        if (ioThreadCount <= 0) {
+            ioThreadCount = DEFAULT_THREAD_COUNT;
+        }
         threadExecutor = ThreadExecutorFactory.createThreadExecutor(ioThreadCount);
         selector = Selector.open();
     }

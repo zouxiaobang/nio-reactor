@@ -6,10 +6,10 @@ import com.demo.channel.ReactorChannel;
  * @author zouxiaobang
  * @date 2021/1/22
  */
-public class TestStringHandler implements Handler<String> {
+public class TestStringHandler extends AbsHandler<String> {
     @Override
     public void handle(ReactorChannel channel, String data) {
-
+        System.out.println("接收到数据: " + data);
     }
 
     @Override

@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
  * @author zouxiaobang
  * @date 2021/1/22
  */
-public class ByteBufferHandler implements Handler<ByteBuffer> {
+public class ByteBufferHandler extends AbsHandler<ByteBuffer> {
     @Override
     public void handle(ReactorChannel channel, ByteBuffer data) {
 

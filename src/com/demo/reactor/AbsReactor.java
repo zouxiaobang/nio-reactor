@@ -24,13 +24,4 @@ public abstract class AbsReactor implements Reactor {
             reactorThread.onWritten(channel);
         }
     }
-
-    private void read() {
-
-    }
-
-    private void write() {
-        // write to buff -> ReactorChannel write()
-    }
-
 }

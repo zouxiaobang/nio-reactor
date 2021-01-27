@@ -163,8 +163,7 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
             try {
                 SelectableChannel selectableChannel = selectionKey.channel();
                 selectableChannel.configureBlocking(false);
-                NioReactorChannel nioReactorChannel = NioReactorChannel.ofChannel(selectableChannel)
-                        .filterChain(filterChain);
+                NioReactorChannel nioReactorChannel = NioReactorChannel.ofChannel(selectableChannel).filterChain(filterChain);
                 nioReactorChannel.setEventType(EventTypeFactory.getBy(selectionKey));
                 dispatchEvent(nioReactorChannel);
                 cancelListening(selectionKey, selectableChannel);

@@ -8,7 +8,7 @@ import java.io.IOException;
  * @author zouxiaobang
  * @date 2021/1/22
  */
-public abstract class AbsReactor implements Reactor {
+public class DefaultReactors implements Reactors {
 
     @Override
     public void accept(ReactorThread subReactorThread, ReactorChannel channel) throws IOException {

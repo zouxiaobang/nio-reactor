@@ -8,7 +8,7 @@ import java.io.IOException;
  * @author zouxiaobang
  * @date 2021/1/22
  */
-public interface Reactor {
+public interface Reactors {
     void accept(ReactorThread subReactorThread, ReactorChannel channel) throws IOException;
 
     void handleIo(ReactorThread reactorThread, ReactorChannel channel);

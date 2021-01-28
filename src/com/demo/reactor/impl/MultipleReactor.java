@@ -1,7 +1,7 @@
 package com.demo.reactor.impl;
 
 import com.demo.channel.ReactorChannel;
-import com.demo.reactor.AbsReactor;
+import com.demo.reactor.DefaultReactors;
 import com.demo.reactor.ReactorThread;
 
 import java.io.IOException;
@@ -11,11 +11,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author zouxiaobang
  * @date 2021/1/22
  */
-public class MultipleReactor extends AbsReactor {
+public class MultipleReactor {
     private static final int DEFAULT_MAIN_COUNT = 1;
     private static final int DEFAULT_SUB_COUNT = 4;
     private ReactorThread[] mainReactorThreads;
     private ReactorThread[] subReactorThreads;
+    private final DefaultReactors reactors;
     private int ioThreadsCount;
 
     public MultipleReactor() {
@@ -24,6 +25,7 @@ public class MultipleReactor extends AbsReactor {
 
     public MultipleReactor(int ioThreadsCount) {
         this.ioThreadsCount = ioThreadsCount;
+        reactors = new DefaultReactors();
     }
 
     public void setIoThreadsCount(int ioThreadsCount) {
@@ -64,7 +66,7 @@ public class MultipleReactor extends AbsReactor {
 
         @Override
         public void dispatchEvent(ReactorChannel channel) throws IOException {
-            handleIo(this, channel);
+            reactors.handleIo(this, channel);
         }
     }
 
@@ -77,7 +79,7 @@ public class MultipleReactor extends AbsReactor {
         @Override
         public void dispatchEvent(ReactorChannel channel) throws IOException {
             int index = count.incrementAndGet() % subReactorThreads.length;
-            accept(subReactorThreads[index], channel);
+            reactors.accept(subReactorThreads[index], channel);
         }
     }
 

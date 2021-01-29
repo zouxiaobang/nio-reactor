@@ -1,6 +1,7 @@
 package com.demo.reactor.impl;
 
 import com.demo.channel.ReactorChannel;
+import com.demo.handler.chain.FilterChain;
 import com.demo.reactor.DefaultReactors;
 import com.demo.reactor.EventType;
 
@@ -34,6 +35,10 @@ public class WorkThreadsReactor {
         if (reactorThread != null) {
             reactorThread.doStop();
         }
+    }
+
+    public void setFilterChain(FilterChain filterChain) {
+        reactorThread.setFilterChain(filterChain);
     }
 
     class WorkerThreadsReactorThread extends NonBlockedReactorThread {

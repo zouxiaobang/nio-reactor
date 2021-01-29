@@ -11,6 +11,6 @@ public class SingleThreadExecutor extends AbsThreadExecutor {
 
     @Override
     public void handle(Runnable runnable) {
-
+        runnable.run();
     }
 }

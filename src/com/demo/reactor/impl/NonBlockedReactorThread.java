@@ -144,8 +144,8 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
 
     private void buildRegisterTask(SelectableChannel selectableChannel, int interestOps) {
         FutureTask<SelectionKey> registerTask = new FutureTask<>(() -> {
-            SelectionKey selectionKey = selectableChannel.register(selector, SelectionKey.OP_ACCEPT);
-            selectionKey.interestOps(interestOps);
+            SelectionKey selectionKey = selectableChannel.register(selector, interestOps);
+//            selectionKey.interestOps(interestOps);
             return selectionKey;
         });
         registerTasks.add(registerTask);
@@ -169,7 +169,7 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
                 NioReactorChannel nioReactorChannel = NioReactorChannel.ofChannel(selectableChannel).filterChain(filterChain);
                 nioReactorChannel.setEventType(EventTypeFactory.getBy(selectionKey));
                 dispatchEvent(nioReactorChannel);
-                cancelListening(selectionKey, selectableChannel);
+//                cancelListening(selectionKey, selectableChannel);
             } catch (IOException e) {
                 selectionKey.cancel();
             }

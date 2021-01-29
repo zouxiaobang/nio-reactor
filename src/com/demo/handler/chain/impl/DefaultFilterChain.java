@@ -24,6 +24,7 @@ public class DefaultFilterChain implements FilterChain {
     @Override
     public void filter(FilterContext context) throws Exception {
         if (currentPosition == processors.size()) {
+            currentPosition = 0;
             return;
         }
         ++ currentPosition;
@@ -37,7 +38,7 @@ public class DefaultFilterChain implements FilterChain {
     }
 
 
-    static class Builder {
+    public static class Builder {
         private final List<FilterProcessor> processors = new ArrayList<>();
 
         public Builder() {

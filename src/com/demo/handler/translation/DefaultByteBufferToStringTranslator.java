@@ -8,12 +8,9 @@ import java.nio.ByteBuffer;
  */
 public class DefaultByteBufferToStringTranslator implements Translator<ByteBuffer, String> {
     @Override
-    public ByteBuffer getLastType() {
-        return null;
-    }
-
-    @Override
     public String translate(ByteBuffer data) {
-        return null;
+        byte[] buffer = new byte[data.limit()];
+        data.get(buffer);
+        return new String(buffer);
     }
 }

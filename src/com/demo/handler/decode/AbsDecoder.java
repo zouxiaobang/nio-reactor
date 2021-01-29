@@ -20,6 +20,9 @@ public abstract class AbsDecoder<T> implements Decoder<T>, FilterProcessor {
 
     @Override
     public void filter(FilterContext context, FilterChain chain) throws Exception {
+        if (context.getBound() != FilterContext.IN_BOUND) {
+            throw new IllegalArgumentException("数据流动方向异常。");
+        }
         T decode = decode(translator, (ByteBuffer) context.getData());
         context.setData(decode);
         chain.filter(context);

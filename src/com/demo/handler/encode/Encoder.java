@@ -9,5 +9,5 @@ import java.nio.ByteBuffer;
  * @date 2021/1/22
  */
 public interface Encoder<T> {
-    ByteBuffer encode(Translator<ByteBuffer, T> translator, T data);
+    ByteBuffer encode(Translator<T, ByteBuffer> translator, T data);
 }

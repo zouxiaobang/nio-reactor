@@ -1,6 +1,7 @@
 package com.demo.handler.translation;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author zouxiaobang
@@ -9,6 +10,6 @@ import java.nio.ByteBuffer;
 public class DefaultStringToByteBufferTranslator implements Translator<String, ByteBuffer> {
     @Override
     public ByteBuffer translate(String data) {
-        return null;
+        return ByteBuffer.wrap(data.getBytes(StandardCharsets.UTF_8));
     }
 }

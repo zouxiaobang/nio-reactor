@@ -3,6 +3,8 @@ package com.demo.reactor.impl;
 import com.demo.channel.NioReactorChannel;
 import com.demo.channel.ReactorChannel;
 import com.demo.handler.chain.FilterChain;
+import com.demo.handler.chain.impl.DefaultFilterChain;
+import com.demo.handler.pipeline.ReactorPipeline;
 import com.demo.handler.thread.ThreadExecutor;
 import com.demo.handler.thread.ThreadExecutorFactory;
 import com.demo.reactor.EventTypeFactory;
@@ -28,7 +30,7 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
     private final ThreadExecutor threadExecutor;
     private boolean isRunning;
     private final Selector selector;
-    private FilterChain filterChain;
+    private ReactorPipeline reactorPipeline;
     private final Queue<Runnable> registerTasks = new LinkedList<>();
 
     public NonBlockedReactorThread() throws IOException {
@@ -114,8 +116,8 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
         });
     }
 
-    public void setFilterChain(FilterChain filterChain) {
-        this.filterChain = filterChain;
+    public void setReactorPipeline(ReactorPipeline reactorPipeline) {
+        this.reactorPipeline = reactorPipeline;
     }
 
     private void runRegisterTask() {
@@ -166,6 +168,8 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
             try {
                 SelectableChannel selectableChannel = selectionKey.channel();
                 selectableChannel.configureBlocking(false);
+                // 每个channel对应一个filterChain，chain不能多线程通用
+                FilterChain filterChain = createFilterChain(reactorPipeline);
                 NioReactorChannel nioReactorChannel = NioReactorChannel.ofChannel(selectableChannel).filterChain(filterChain);
                 nioReactorChannel.setEventType(EventTypeFactory.getBy(selectionKey));
                 dispatchEvent(nioReactorChannel);
@@ -174,6 +178,15 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
                 selectionKey.cancel();
             }
         }
+    }
+
+    private FilterChain createFilterChain(ReactorPipeline reactorPipeline) {
+        if (reactorPipeline.getProcessors().isEmpty()) {
+            return null;
+        }
+        return new DefaultFilterChain.Builder()
+                .setProcessors(reactorPipeline.getProcessors())
+                .build();
     }
 
     private void cancelListening(SelectionKey selectionKey, SelectableChannel selectableChannel) {

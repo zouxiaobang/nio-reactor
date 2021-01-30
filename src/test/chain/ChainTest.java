@@ -21,8 +21,8 @@ import java.nio.ByteBuffer;
  * @date 2021/1/29
  */
 public class ChainTest {
-    // todo chain被多线程调用，会出现线程安全问题
-    // todo 思考问题，加锁or对象隔离
+    // done chain被多线程调用，会出现线程安全问题
+    // done 思考问题，加锁or对象隔离
 
     private static final String DATA = "Hello, World!";
     private FilterChain positiveChain;

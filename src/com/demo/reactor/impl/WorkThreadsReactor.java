@@ -2,6 +2,7 @@ package com.demo.reactor.impl;
 
 import com.demo.channel.ReactorChannel;
 import com.demo.handler.chain.FilterChain;
+import com.demo.handler.pipeline.ReactorPipeline;
 import com.demo.reactor.DefaultReactors;
 import com.demo.reactor.EventType;
 
@@ -37,8 +38,8 @@ public class WorkThreadsReactor {
         }
     }
 
-    public void setFilterChain(FilterChain filterChain) {
-        reactorThread.setFilterChain(filterChain);
+    public void setReactorPipeline(ReactorPipeline pipeline) {
+        reactorThread.setReactorPipeline(pipeline);
     }
 
     class WorkerThreadsReactorThread extends NonBlockedReactorThread {

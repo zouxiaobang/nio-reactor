@@ -39,10 +39,15 @@ public class DefaultFilterChain implements FilterChain {
 
 
     public static class Builder {
-        private final List<FilterProcessor> processors = new ArrayList<>();
+        private List<FilterProcessor> processors = new ArrayList<>();
 
         public Builder() {
             processors.add(new CheckFilterProcessor());
+        }
+
+        public Builder setProcessors(List<FilterProcessor> processors) {
+            this.processors = processors;
+            return this;
         }
 
         public Builder addProcessor(FilterProcessor newProcessor) {

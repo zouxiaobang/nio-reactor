@@ -17,7 +17,7 @@ public class SocketClient {
     private Socket socket;
     @Before
     public void createSocket() throws IOException {
-        socket = new Socket("localhost", 8090);
+        socket = new Socket("localhost", 8091);
     }
 
     @Test

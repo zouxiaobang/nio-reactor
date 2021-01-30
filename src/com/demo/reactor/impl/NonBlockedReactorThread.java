@@ -174,7 +174,7 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
     }
 
     private FilterChain createFilterChain(ReactorPipeline reactorPipeline) {
-        if (reactorPipeline.getProcessors().isEmpty()) {
+        if (reactorPipeline == null || reactorPipeline.getProcessors().isEmpty()) {
             return null;
         }
         return new DefaultFilterChain.Builder()

@@ -1,6 +1,7 @@
 package com.demo.reactor.impl;
 
 import com.demo.channel.ReactorChannel;
+import com.demo.handler.pipeline.ReactorPipeline;
 import com.demo.reactor.DefaultReactors;
 import com.demo.reactor.ReactorThread;
 
@@ -18,6 +19,8 @@ public class MultipleReactor {
     private ReactorThread[] subReactorThreads;
     private final DefaultReactors reactors;
     private int ioThreadsCount;
+    private ReactorPipeline inPipeline;
+    private ReactorPipeline outPipeline;
 
     public MultipleReactor() {
         this(0);
@@ -34,6 +37,11 @@ public class MultipleReactor {
 
     public void group() throws IOException {
         group(DEFAULT_MAIN_COUNT, DEFAULT_SUB_COUNT);
+    }
+
+    public void setReactorPipeline(ReactorPipeline inPipeline, ReactorPipeline outPipeline) {
+        this.inPipeline = inPipeline;
+        this.outPipeline = outPipeline;
     }
 
     public void group(int mainCount, int subCount) throws IOException {
@@ -55,6 +63,7 @@ public class MultipleReactor {
     private void buildSubReactorThreads(int subCount) throws IOException {
         for (int i = 0; i < subCount; i++) {
             subReactorThreads[i] = new SubReactorThread(ioThreadsCount);
+            ((NonBlockedReactorThread)subReactorThreads[i]).setReactorPipeline(inPipeline, outPipeline);
             subReactorThreads[i].doStart();
         }
     }
@@ -89,8 +98,8 @@ public class MultipleReactor {
      *                  负数代表全部启动
      */
     public void bind(int mainIndex, int port) throws IOException {
-        if (isGroupExists()) {
-            return;
+        if (isGroupNotExists()) {
+            group();
         }
         if (mainIndex >= mainReactorThreads.length) {
             throw new IndexOutOfBoundsException("mainIndex不能超过总数");
@@ -117,7 +126,7 @@ public class MultipleReactor {
      *                  负数代表全部启动
      */
     public void stop(int mainIndex) {
-        if (isGroupExists()) {
+        if (isGroupNotExists()) {
             return;
         }
         if (mainIndex >= mainReactorThreads.length) {
@@ -137,7 +146,7 @@ public class MultipleReactor {
         }
     }
 
-    private boolean isGroupExists() {
+    private boolean isGroupNotExists() {
         if (mainReactorThreads == null) {
             return true;
         }

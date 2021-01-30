@@ -1,4 +1,4 @@
-package com.demo;
+package test.chain;
 
 import com.demo.handler.SendingHandler;
 import com.demo.handler.TestStringHandler;
@@ -11,8 +11,11 @@ import com.demo.reactor.impl.WorkThreadsReactor;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class Main {
-
+/**
+ * @author zouxiaobang
+ * @date 2021/1/30
+ */
+public class WorkThreadsReactorServer {
     public static void main(String[] args) throws IOException {
         testWorkThreadsReactor();
     }
@@ -25,9 +28,5 @@ public class Main {
                 () -> Arrays.asList(new StringDecoder(new DefaultByteBufferToStringTranslator()), new TestStringHandler()),
                 () -> Arrays.asList(new StringEncoder(new DefaultStringToByteBufferTranslator()), new SendingHandler()));
         workThreadsReactor.bind(8090);
-    }
-
-    private static void testMultipleReactor() throws IOException {
-
     }
 }

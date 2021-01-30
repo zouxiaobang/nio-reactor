@@ -22,6 +22,4 @@ public interface ReactorThread {
     void onAccepted(ReactorChannel channel) throws IOException;
 
     void onRead(ReactorChannel channel);
-
-    void onWritten(ReactorChannel channel);
 }

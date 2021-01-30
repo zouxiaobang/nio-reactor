@@ -20,8 +20,6 @@ public class DefaultReactors implements Reactors {
         EventType eventType = channel.getEventType();
         if (EventType.READ.equals(eventType)) {
             reactorThread.onRead(channel);
-        } else {
-            reactorThread.onWritten(channel);
         }
     }
 }

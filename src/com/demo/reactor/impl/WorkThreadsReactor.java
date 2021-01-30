@@ -1,7 +1,6 @@
 package com.demo.reactor.impl;
 
 import com.demo.channel.ReactorChannel;
-import com.demo.handler.chain.FilterChain;
 import com.demo.handler.pipeline.ReactorPipeline;
 import com.demo.reactor.DefaultReactors;
 import com.demo.reactor.EventType;
@@ -38,15 +37,11 @@ public class WorkThreadsReactor {
         }
     }
 
-    public void setReactorPipeline(ReactorPipeline pipeline) {
-        reactorThread.setReactorPipeline(pipeline);
+    public void setReactorPipeline(ReactorPipeline inPipeline, ReactorPipeline outPipeline) {
+        reactorThread.setReactorPipeline(inPipeline, outPipeline);
     }
 
     class WorkerThreadsReactorThread extends NonBlockedReactorThread {
-        public WorkerThreadsReactorThread() throws IOException {
-            super();
-        }
-
         public WorkerThreadsReactorThread(int ioThreadsCount) throws IOException {
             super(ioThreadsCount);
         }
@@ -56,7 +51,7 @@ public class WorkThreadsReactor {
             EventType eventType = channel.getEventType();
             if (eventType == EventType.ACCEPT) {
                 reactors.accept(this, channel);
-            } else if (eventType == EventType.READ || eventType == EventType.WRITE) {
+            } else if (eventType == EventType.READ) {
                 reactors.handleIo(this, channel);
             }
         }

@@ -1,8 +1,11 @@
 package com.demo;
 
+import com.demo.handler.SendingHandler;
 import com.demo.handler.TestStringHandler;
 import com.demo.handler.decode.StringDecoder;
+import com.demo.handler.encode.StringEncoder;
 import com.demo.handler.translation.DefaultByteBufferToStringTranslator;
+import com.demo.handler.translation.DefaultStringToByteBufferTranslator;
 import com.demo.reactor.impl.WorkThreadsReactor;
 
 import java.io.IOException;
@@ -16,7 +19,11 @@ public class Main {
 
     private static void testWorkThreadsReactor() throws IOException {
         WorkThreadsReactor workThreadsReactor = new WorkThreadsReactor();
-        workThreadsReactor.setReactorPipeline(() -> Arrays.asList(new StringDecoder(new DefaultByteBufferToStringTranslator()), new TestStringHandler()));
+        // todo 这里需要添加两个pipeline来处理读写事件
+        // todo 待优化，设置一个管道检测器，拥有重构建能力，能够直接区分读写的chain
+        workThreadsReactor.setReactorPipeline(
+                () -> Arrays.asList(new StringDecoder(new DefaultByteBufferToStringTranslator()), new TestStringHandler()),
+                () -> Arrays.asList(new StringEncoder(new DefaultStringToByteBufferTranslator()), new SendingHandler()));
         workThreadsReactor.bind(8090);
     }
 

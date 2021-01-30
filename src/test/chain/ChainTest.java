@@ -1,6 +1,6 @@
 package test.chain;
 
-import com.demo.handler.ByteBufferHandler;
+import com.demo.handler.SendingHandler;
 import com.demo.handler.TestStringHandler;
 import com.demo.handler.chain.FilterChain;
 import com.demo.handler.chain.FilterContext;
@@ -38,7 +38,7 @@ public class ChainTest {
         reverseChain = new DefaultFilterChain.Builder()
                 .addProcessors(
                         new StringEncoder(new DefaultStringToByteBufferTranslator()),
-                        new ByteBufferHandler())
+                        new SendingHandler())
                 .build();
     }
 

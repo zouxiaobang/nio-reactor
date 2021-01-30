@@ -7,8 +7,8 @@ import java.io.IOException;
  * @date 2021/1/25
  * @option
  */
-public interface Ioer {
+public interface Ioer<T> {
     void read() throws IOException;
 
-    void write() throws IOException;
+    void write(T data) throws Exception;
 }

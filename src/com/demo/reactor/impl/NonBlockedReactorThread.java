@@ -30,7 +30,8 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
     private final ThreadExecutor threadExecutor;
     private boolean isRunning;
     private final Selector selector;
-    private ReactorPipeline reactorPipeline;
+    private ReactorPipeline inPipeline;
+    private ReactorPipeline outPipeline;
     private final Queue<Runnable> registerTasks = new LinkedList<>();
 
     public NonBlockedReactorThread() throws IOException {
@@ -105,19 +106,9 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
         });
     }
 
-    @Override
-    public void onWritten(ReactorChannel channel) {
-        threadExecutor.handle(() -> {
-            try {
-                channel.getIoer().write();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
-    public void setReactorPipeline(ReactorPipeline reactorPipeline) {
-        this.reactorPipeline = reactorPipeline;
+    public void setReactorPipeline(ReactorPipeline inPipeline, ReactorPipeline outPipeline) {
+        this.inPipeline = inPipeline;
+        this.outPipeline = outPipeline;
     }
 
     private void runRegisterTask() {
@@ -169,8 +160,10 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
                 SelectableChannel selectableChannel = selectionKey.channel();
                 selectableChannel.configureBlocking(false);
                 // 每个channel对应一个filterChain，chain不能多线程通用
-                FilterChain filterChain = createFilterChain(reactorPipeline);
-                NioReactorChannel nioReactorChannel = NioReactorChannel.ofChannel(selectableChannel).filterChain(filterChain);
+                NioReactorChannel nioReactorChannel = NioReactorChannel
+                        .ofChannel(selectableChannel)
+                        .inFilterChain(createFilterChain(inPipeline))
+                        .outFilterChain(createFilterChain(outPipeline));
                 nioReactorChannel.setEventType(EventTypeFactory.getBy(selectionKey));
                 dispatchEvent(nioReactorChannel);
 //                cancelListening(selectionKey, selectableChannel);
@@ -199,6 +192,6 @@ public abstract class NonBlockedReactorThread extends Thread implements ReactorT
         ServerSocketChannel serverSocketChannel = (ServerSocketChannel) selectableChannel;
         SocketChannel socketChannel = serverSocketChannel.accept();
         socketChannel.configureBlocking(false);
-        buildRegisterTask(socketChannel, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+        buildRegisterTask(socketChannel, SelectionKey.OP_READ);
     }
 }

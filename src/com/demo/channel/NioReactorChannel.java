@@ -16,7 +16,9 @@ import java.nio.channels.SocketChannel;
 public class NioReactorChannel implements ReactorChannel {
     private final SelectableChannel selectableChannel;
     private EventType eventType;
-    private FilterChain filterChain;
+    private FilterChain inFilterChain;
+    private FilterChain outFilterChain;
+
     private Ioer ioer;
 
     private NioReactorChannel(SelectableChannel selectableChannel) {
@@ -27,15 +29,17 @@ public class NioReactorChannel implements ReactorChannel {
         return new NioReactorChannel(selectableChannel);
     }
 
-    public NioReactorChannel filterChain(FilterChain filterChain) {
-        this.filterChain = filterChain;
+    public NioReactorChannel inFilterChain(FilterChain filterChain) {
+        this.inFilterChain = filterChain;
         return this;
     }
 
-    @Override
-    public FilterChain getFilterChain() {
-        return filterChain;
+    public NioReactorChannel outFilterChain(FilterChain filterChain) {
+        this.outFilterChain = filterChain;
+        return this;
     }
+
+
 
     @Override
     public EventType getEventType() {
@@ -58,12 +62,12 @@ public class NioReactorChannel implements ReactorChannel {
         this.eventType = eventType;
     }
 
-
+    @Override
     public SelectableChannel getSelectableChannel() {
         return selectableChannel;
     }
 
-    class NioIoer implements Ioer {
+    class NioIoer<T> implements Ioer<T> {
         @Override
         public void read() throws IOException {
             ByteBuffer byteBuffer = getByteBufferFromChannel();
@@ -73,17 +77,17 @@ public class NioReactorChannel implements ReactorChannel {
         }
 
         private void doRead(ByteBuffer byteBuffer) {
-            if (filterChain != null) {
+            if (inFilterChain != null) {
                 try {
                     FilterContext filterContext = buildFilterContext(byteBuffer, FilterContext.IN_BOUND);
-                    filterChain.filter(filterContext);
+                    inFilterChain.filter(filterContext);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
 
-        private FilterContext buildFilterContext(ByteBuffer byteBuffer, int bound) {
+        private FilterContext buildFilterContext(Object byteBuffer, int bound) {
             FilterContext filterContext = new FilterContext();
             filterContext.setData(byteBuffer);
             filterContext.setBound(bound);
@@ -124,8 +128,17 @@ public class NioReactorChannel implements ReactorChannel {
         }
 
         @Override
-        public void write() {
+        public void write(T data) throws Exception {
+            if (data != null) {
+                doWrite(data);
+            }
+        }
 
+        private void doWrite(T data) throws Exception {
+            if (outFilterChain != null) {
+                FilterContext filterContext = buildFilterContext(data, FilterContext.OUT_BOUND);
+                outFilterChain.filter(filterContext);
+            }
         }
     }
 }

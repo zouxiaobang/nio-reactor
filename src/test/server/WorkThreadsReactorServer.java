@@ -1,4 +1,4 @@
-package test.chain;
+package test.server;
 
 import com.demo.handler.SendingHandler;
 import com.demo.handler.TestStringHandler;

@@ -1,4 +1,4 @@
-package test.chain;
+package test.client;
 
 import org.junit.Assert;
 import org.junit.Before;
